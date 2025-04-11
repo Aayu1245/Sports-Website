@@ -1,0 +1,10 @@
+document.getElementById("LOGIN-PAGE").addEventListener("click", function () {
+    window.location.href = "LOGIN-PAGE.html";
+});
+document.getElementById("ADMIN-LOGIN-PAGE").addEventListener("click", function () {
+    window.location.href = "ADMIN-LOGIN-PAGE.html";
+});
+
+function Cricket_Tournaments() {
+    window.open("CRICKET-TOURNAMENTS.html", "_blank");
+}
