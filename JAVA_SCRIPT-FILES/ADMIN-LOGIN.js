@@ -1,10 +1,27 @@
 const username = document.getElementById("username");
 const pass = document.getElementById("password");
 
-const button = document.getElementById("button");
 
-async function senddata(){
-    const res = await fetch('')
+const cbutton = document.getElementById("button");
+
+
+async function senddata(event){
+    event.preventDefault();
+    console.log("button clicked");
+    const resp = await fetch('http://localhost:8000/ADMIN-LOGIN-PAGE.html', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+          },
+        body:  JSON.stringify({
+            Username: username.value,
+            Pass: pass.value
+        })
+    });
+    const dat = await resp.json();
+    if (dat.status==="Good"){
+        window.location.href = "/ADMIN-DASHBOARD.html";
+    }
 }
 
-button.addEventListener('click', await senddata);
+cbutton.addEventListener('click', senddata);
