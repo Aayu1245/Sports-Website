@@ -76,7 +76,20 @@ server.post('/ADMIN-LOGIN-PAGE.html', async (req,res)=>{
 });
 
 
-
+server.post('/ADMIN-DASHBOARD.js', async(req,res)=>{  
+    const body = req.body;
+    const playersArray = Object.values(body.players)
+    if (body.sport === "Football"){
+        await FootballTeam.create({
+            teamName:body.teamname,
+            players: playersArray.map((player)=> {return {
+                name: player.name, 
+                roll: player.role,
+            };
+            }),
+        })
+    }
+});
 
 
 server.listen(8000, console.log("Server Started"));

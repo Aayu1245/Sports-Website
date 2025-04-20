@@ -1,5 +1,6 @@
 let editingIndex = -1;
-let count = 1;
+let countteam1 = 1;
+let countteam2 = 1;
 
 // --- DASHBOARD FUNCTIONALITY ---
 const matchForm = document.getElementById("match-form");
@@ -8,16 +9,16 @@ const logoutButton = document.getElementById("logout");
 
 
 /* --- Create a New Player Field Function --- */
-function createPlayerField() {
+function createPlayerField1() {
   const div = document.createElement("div");
   div.className = "player-field";
   const sport = document.getElementById("sport").value;
-  let html = `<input type="text" class="player-name" placeholder="Player Name" required id=Player-${count} />`;
+  let html = `<input type="text" class="player-name" placeholder="Player Name" required id=Player-${count1} />`;
 
   //add them on top of the below if statement
   if (sport === "Cricket") {
     html += `
-                 <select class="player-role" required>
+                 <select class="player-role" id= "Role${count1}" required>
                     <option value="">Select Role</option>
                     <option value="Right Hand Batsman">Right Hand Batsman</option>
                     <option value="Left Hand Batsman">Left Hand Batsman</option>
@@ -25,15 +26,16 @@ function createPlayerField() {
                     <option value="Bowler">Bowler</option>
                  </select>`;
   } else if (sport === "Football") {
-    html += `<select class="player-role" required>
+    html += `<select class="player-role" id= "Role${count1}" required>
                     <option value="">Select Role</option>
                     <option value="Striker">Striker</option>
                     <option value="Defender">Defender</option>
                     <option value="Midfielder">Midfielder</option>
                     <option value="Goalkeeper">Goalkeeper</option>
                  </select>`;
+
   } else if (sport === "Kabbadi") {
-    html += `<select class="player-role" required>
+    html += `<select class="player-role" id= "Role${count1}" required>
                     <option value="">Select Role</option>
                     <option value="Raider">Raider</option>
                     <option value="Defender">Defender</option>
@@ -42,7 +44,47 @@ function createPlayerField() {
     // Fallback if other sports are added later.
     html += `<input type="text" class="player-role" placeholder="Player Role" required />`;
   }
-  html += `<button type="button" class="remove-player">Remove</button>`;
+  html += `<button type="button" class="remove-player" id= "Remove${count1}">Remove</button>`;
+  div.innerHTML = html;
+  return div;
+}
+
+function createPlayerField2() {
+  const div = document.createElement("div");
+  div.className = "player-field";
+  sport = document.getElementById("sport").value;
+  let html = `<input type="text" class="player-name" placeholder="Player Name" required id=Player-${count2} />`;
+
+  //add them on top of the below if statement
+  if (sport === "Cricket") {
+    html += `
+                 <select class="player-role" id= "Role${count2}" required>
+                    <option value="">Select Role</option>
+                    <option value="Right Hand Batsman">Right Hand Batsman</option>
+                    <option value="Left Hand Batsman">Left Hand Batsman</option>
+                    <option value="Wicketkeeper">Wicketkeeper</option>
+                    <option value="Bowler">Bowler</option>
+                 </select>`;
+  } else if (sport === "Football") {
+    html += `<select class="player-role" id= "Role${count2}" required>
+                    <option value="">Select Role</option>
+                    <option value="Striker">Striker</option>
+                    <option value="Defender">Defender</option>
+                    <option value="Midfielder">Midfielder</option>
+                    <option value="Goalkeeper">Goalkeeper</option>
+                 </select>`;
+
+  } else if (sport === "Kabbadi") {
+    html += `<select class="player-role" id= "Role${count2}" required>
+                    <option value="">Select Role</option>
+                    <option value="Raider">Raider</option>
+                    <option value="Defender">Defender</option>
+                 </select>`;
+  } else {
+    // Fallback if other sports are added later.
+    html += `<input type="text" class="player-role" placeholder="Player Role" required />`;
+  }
+  html += `<button type="button" class="remove-player" id= "Remove${count2}">Remove</button>`;
   div.innerHTML = html;
   return div;
 }
@@ -52,23 +94,22 @@ document
   .getElementById("add-team1-player")
   .addEventListener("click", function () {
     const team1Container = document.getElementById("team1-players");
-    count++;
-    team1Container.appendChild(createPlayerField());
-    console.log(count);
+    team1Container.appendChild(createPlayerField1());
+    count1++;
   });
 
 document
   .getElementById("add-team2-player")
   .addEventListener("click", function () {
     const team2Container = document.getElementById("team2-players");
-    team2Container.appendChild(createPlayerField());
+    team2Container.appendChild(createPlayerField2());
+    count2++;
   });
 
 // Remove player field (using event delegation)
 document.addEventListener("click", function (e) {
   if (e.target && e.target.classList.contains("remove-player")) {
     e.target.parentElement.remove();
-    count--;
   }
 });
 
@@ -78,10 +119,12 @@ document.getElementById("sport").addEventListener("change", function () {
     .getElementById("team1-players")
     .querySelectorAll(".player-field")
     .forEach((el) => el.remove());
+    count1 = 1;
   document
     .getElementById("team2-players")
     .querySelectorAll(".player-field")
     .forEach((el) => el.remove());
+    count2 = 1;
 });
 
 // Function to load and display matches from localStorage
@@ -137,7 +180,7 @@ function loadMatches() {
 loadMatches();
 
 // Handle new match form submission (and updating if editing)
-matchForm.addEventListener("submit", function (e) {
+matchForm.addEventListener("submit", async function (e) {
   e.preventDefault();
   const sport = document.getElementById("sport").value;
   const team1Name = document.getElementById("team1-name").value;
@@ -162,6 +205,23 @@ matchForm.addEventListener("submit", function (e) {
     player.role = field.querySelector(".player-role").value;
     return player;
   });
+
+  async function senddata(sports,Teamname,Players){
+    const dat = await fetch('http://localhost:8000/ADMIN-DASHBOARD.js', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        sport: sports,
+        teamname: Teamname,
+        players: Players,
+      })
+    });
+  }
+
+  await senddata(sport,team1Name,team1Players);
+  await senddata(sport,team2Name,team2Players);
 
   const newMatch = {
     sport,
